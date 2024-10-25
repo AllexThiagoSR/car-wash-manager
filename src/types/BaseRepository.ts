@@ -24,7 +24,7 @@ export default abstract class BaseRepository<T> implements ReadRepository<T>, Wr
     throw new APIError('Some method was not implemented', 500);
   }
 
-  findAll(quantity?: number): Promise<T[]> {
+  findAll(quantity?: number, page?: number): Promise<T[]> {
     throw new APIError('Some method was not implemented', 500);
   }
 

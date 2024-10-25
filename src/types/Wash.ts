@@ -2,24 +2,24 @@ import PaymentMethod from "./PaymentMethod";
 
 export default class Wash {
   public id?: string;
-  public vehicleModel: string;
   public clientName: string;
-  public value: number;
-  public description: string;
-  public paid: boolean;
+  public vehicleModel?: string;
   public washDate: Date;
+  public value?: number;
+  public description?: string;
+  public paid?: boolean;
   public paymentTypeId?: string;
   public payment?: PaymentMethod;
 
   constructor(
-    vehicleModel: string,
     clientName: string,
-    value: number,
-    description: string,
     washDate: Date,
-    paid: boolean = false,
-    paymentTypeId?: string,
     id?: string,
+    vehicleModel?: string,
+    value?: number,
+    description?: string,
+    paid?: boolean,
+    paymentTypeId?: string,
     payment?: PaymentMethod
   ) {
     this.vehicleModel = vehicleModel;
