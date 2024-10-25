@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import APIError from './utils/ApiError';
 import client from './database/connection';
 import indexRouter from './routes';
+import WashRepository from './repositories/WashRepository';
 
 export default class App {
   public app: express.Express;

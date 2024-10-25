@@ -8,7 +8,7 @@ export default class UserRepository extends IUserRespository {
 
   async findByEmail(email: string): Promise<User> {
     const query = {
-      text: `SELECT id, name, email, password FROM users WHERE email=$1`,
+      text: `SELECT id, name, email, password FROM ${this.tableName} WHERE email=$1`,
       values: [email]
     };
     const result = (await this.client.query(query)).rows[0];

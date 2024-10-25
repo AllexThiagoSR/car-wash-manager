@@ -15,7 +15,7 @@ export interface WriteRepository<T> {
 }
 
 export default abstract class BaseRepository<T> implements ReadRepository<T>, WriteRepository<T>, InsertRepository<T> {
-  private tableName: string;
+  protected tableName: string;
   constructor(name: string) {
     this.tableName = name;
   }
