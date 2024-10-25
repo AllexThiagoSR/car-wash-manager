@@ -13,4 +13,9 @@ export default class WashService {
     const washes = await this.repository.findAll();
     return new ServiceResponse(200, washes);
   }
+
+  public async findOne(id: string) {
+    const wash = await this.repository.findOne(id);
+    return new ServiceResponse(200, wash);
+  }
 }
