@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import APIError from './utils/ApiError';
 import client from './database/connection';
+import indexRouter from './routes';
 
 export default class App {
   public app: express.Express;
@@ -15,10 +16,8 @@ export default class App {
 
   private async testConnection() {
     try {
-      await client.connect();
       const result = await client.query('SELECT 1+1 as result');
       console.log(result.rows);
-      await client.end()
     } catch (error) {
       console.log(error);
     }
@@ -36,7 +35,9 @@ export default class App {
   }
 
   private routes() {
-    this.app.get('/check', (_req, res) => res.send('API is running'))
+    this.app.get('/check', (_req, res) => res.json({ message: 'API is running' }));
+
+    this.app.use('/api', indexRouter);
 
     this.app.use((err: APIError, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
       console.log(err);
