@@ -4,15 +4,11 @@ import JWTUtils from "../utils/JWTUtils";
 
 export default class AuthMiddleware {
   public static middleware(req: Request, res: Response, next: NextFunction) {
-    try {
-      const token = req.header('Authorization')
-      if (token === undefined) throw new APIError('Token not provided', 404);
-      if (!token.includes('Bearer')) throw new APIError('Invalid token', 401);
-      const payload = new JWTUtils().verify(token.replace('Bearer ', '')!);
-      res.locals.user = payload;
-      return next();
-    } catch (error) {
-      return next(error);
-    }
+    const token = req.header('Authorization')
+    if (token === undefined) throw new APIError('Token not provided', 404);
+    if (!token.includes('Bearer')) throw new APIError('Invalid token', 401);
+    const payload = new JWTUtils().verify(token.replace('Bearer ', '')!);
+    res.locals.user = payload;
+    return next();
   }
 }

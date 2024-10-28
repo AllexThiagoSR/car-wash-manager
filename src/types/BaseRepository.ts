@@ -28,7 +28,7 @@ export default abstract class BaseRepository<T> implements ReadRepository<T>, Wr
     throw new APIError('Some method was not implemented', 500);
   }
 
-  create(data: Partial<T>): Promise<any> {
+  create(data: Partial<T>): Promise<T> {
     throw new APIError('Some method was not implemented', 500);
   }
 

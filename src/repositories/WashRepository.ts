@@ -57,4 +57,38 @@ export default class WashRepository extends IWashRespository {
     const washes = (await this.client.query(query)).rows;
     return washes.map((wash: any) => new Wash(wash?.clientname, wash?.washdate, wash?.id));
   }
+
+  
+
+  async getInsertedWash({ vehicleModel, description, clientName, value, paymentTypeId }: Partial<Wash>): Promise<Wash> {
+    const query = {
+      text: `
+      SELECT client_name AS clientname, wash_date AS date, id FROM ${this.tableName}
+      WHERE vehicle_model = $1 AND description = $2 AND client_name = $3 AND "value" = $4 AND payment_type_id = $5;
+      `,
+      values: [vehicleModel, description, clientName, value, paymentTypeId],
+    };
+    const washes = (await this.client.query(query)).rows;
+    const createdWash = washes[washes.length - 1];
+    return new Wash(
+      createdWash.clientname,
+      createdWash.date,
+      createdWash.id,
+    );
+  }
+
+  override async create(
+    { vehicleModel, description, clientName, value, paymentTypeId }: Partial<Wash>
+  ): Promise<Wash> {
+    const query = {
+      text: `
+      INSERT INTO ${this.tableName} (vehicle_model, description, client_name, "value", payment_type_id) VALUES
+      ($1, $2, $3, $4, $5);
+      `,
+      values: [vehicleModel, description, clientName, value, paymentTypeId],
+    };
+    await this.client.query(query);
+    const createdWash = await this.getInsertedWash({ vehicleModel, description, clientName, value, paymentTypeId });
+    return createdWash;
+  }
 }
