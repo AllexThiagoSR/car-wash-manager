@@ -1,4 +1,5 @@
 import { SignOptions, JwtPayload, sign, verify, VerifyOptions } from 'jsonwebtoken';
+import APIError from './ApiError';
 
 export default class JWTUtils {
   private config: SignOptions;
@@ -18,6 +19,10 @@ export default class JWTUtils {
   }
 
   public verify(token: string) {
-    return verify(token, this.secret, this.verifyConfig);
+    try {
+      return verify(token, this.secret, this.verifyConfig);
+    } catch (error) {
+      throw new APIError('Invalid token', 401);
+    }
   }
 }
