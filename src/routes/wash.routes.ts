@@ -11,6 +11,6 @@ washRouter.get('/', adapter(AuthMiddleware.middleware), adapter((req, res) => co
 
 washRouter.get('/:id', adapter(AuthMiddleware.middleware), adapter((req, res) => controller.findOne(req, res)));
 
-washRouter.post('/', adapter(WashMiddleware.washCreation));
+washRouter.post('/', adapter(AuthMiddleware.middleware), adapter(WashMiddleware.washCreation), adapter((req, res) => controller.create(req, res)));
 
 export default washRouter;

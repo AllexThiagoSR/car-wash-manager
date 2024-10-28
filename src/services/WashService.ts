@@ -18,4 +18,9 @@ export default class WashService {
     const wash = await this.repository.findOne(id);
     return new ServiceResponse(200, wash);
   }
+
+  public async create(data: Partial<Wash>): Promise<ServiceResponse<Wash>> {
+    const createdWash = await this.repository.create(data);
+    return new ServiceResponse(201, createdWash);
+  }
 }

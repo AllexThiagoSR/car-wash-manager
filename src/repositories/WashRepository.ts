@@ -58,8 +58,6 @@ export default class WashRepository extends IWashRespository {
     return washes.map((wash: any) => new Wash(wash?.clientname, wash?.washdate, wash?.id));
   }
 
-  
-
   async getInsertedWash({ vehicleModel, description, clientName, value, paymentTypeId }: Partial<Wash>): Promise<Wash> {
     const query = {
       text: `

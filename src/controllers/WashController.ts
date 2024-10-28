@@ -15,4 +15,9 @@ export default class WashController {
     const response = await this.service.findOne(req.params.id)
     return res.status(response.statusCode).json(response.body)
   }
+  
+  async create(req: Request, res: Response) {
+    const response = await this.service.create(req.body);
+    return res.status(response.statusCode).json(response.body)
+  }
 }
