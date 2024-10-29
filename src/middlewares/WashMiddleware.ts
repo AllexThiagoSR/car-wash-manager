@@ -7,9 +7,9 @@ export default class WashMiddleware {
   private static validator = Joi.object({
     clientName: Joi.string().required(),
     description: Joi.string().min(5).required(),
-    paymentTypeId: Joi.string().required(),
+    paymentTypeId: Joi.string(),
     vehicleModel: Joi.string().required(),
-    value:  Joi.number().min(20).required()
+    value: Joi.number().min(20).required()
   });
 
   public static washCreation(req: Request, _res: Response, next: NextFunction) {

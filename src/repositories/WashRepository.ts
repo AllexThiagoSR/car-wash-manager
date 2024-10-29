@@ -47,7 +47,8 @@ export default class WashRepository extends IWashRespository {
       SELECT
         id,
         client_name as clientName,
-        wash_date as washDate
+        wash_date as washDate,
+        value
       FROM ${this.tableName}
       LIMIT $1 OFFSET $2
       `,
@@ -55,16 +56,16 @@ export default class WashRepository extends IWashRespository {
     };
 
     const washes = (await this.client.query(query)).rows;
-    return washes.map((wash: any) => new Wash(wash?.clientname, wash?.washdate, wash?.id));
+    return washes.map((wash: any) => new Wash(wash?.clientname, wash?.washdate, wash?.id, undefined, wash?.value));
   }
 
   async getInsertedWash({ vehicleModel, description, clientName, value, paymentTypeId }: Partial<Wash>): Promise<Wash> {
     const query = {
       text: `
       SELECT client_name AS clientname, wash_date AS date, id FROM ${this.tableName}
-      WHERE vehicle_model = $1 AND description = $2 AND client_name = $3 AND "value" = $4 AND payment_type_id = $5;
+      WHERE vehicle_model = $1 AND description = $2 AND client_name = $3 AND "value" = $4 ${paymentTypeId ? 'AND payment_type_id = $5' : ''};
       `,
-      values: [vehicleModel, description, clientName, value, paymentTypeId],
+      values: paymentTypeId ? [vehicleModel, description, clientName, value, paymentTypeId] : [vehicleModel, description, clientName, value],
     };
     const washes = (await this.client.query(query)).rows;
     const createdWash = washes[washes.length - 1];
@@ -75,18 +76,68 @@ export default class WashRepository extends IWashRespository {
     );
   }
 
-  override async create(
-    { vehicleModel, description, clientName, value, paymentTypeId }: Partial<Wash>
-  ): Promise<Wash> {
+  override async create({ vehicleModel, description, clientName, value, paymentTypeId }: Partial<Wash>): Promise<Wash> {
     const query = {
-      text: `
-      INSERT INTO ${this.tableName} (vehicle_model, description, client_name, "value", payment_type_id) VALUES
-      ($1, $2, $3, $4, $5);
-      `,
+      text: `INSERT INTO ${this.tableName} (vehicle_model, description, client_name, "value", payment_type_id) VALUES ($1, $2, $3, $4, $5);`,
       values: [vehicleModel, description, clientName, value, paymentTypeId],
     };
     await this.client.query(query);
     const createdWash = await this.getInsertedWash({ vehicleModel, description, clientName, value, paymentTypeId });
     return createdWash;
+  }
+
+  override async findAllWithDateFilters(filters?: { initDate?: string; finalDate?: string; quantity?: number; page?: number; }): Promise<Wash[]> {
+    const query: { text: string, values: any[] } = { text: '', values: [] };
+
+    if (filters) {
+      const { initDate, finalDate, quantity, page } = filters;
+      const whereInitDateOnly = 'WHERE wash_date <= $3';
+      const whereFinalDateOnly = 'WHERE wash_date >= $3';
+      const whereComplete = `WHERE wash_date >= $3 AND wash_date <= $4`;
+      query.text = `
+        SELECT
+          vehicle_model as vehicleModel,
+          client_name as clientName,
+          value,
+          paid,
+          wash_date as washDate,
+          name,
+          payment_methods.description as paymentDescription,
+          payment_type_id as paymentTypeId
+        FROM ${this.tableName}
+        LEFT JOIN payment_methods ON ${this.tableName}.payment_type_id = payment_methods.id
+        ${(initDate && finalDate) ? whereComplete : ''}${(!initDate && finalDate) ? whereFinalDateOnly : ''}${(initDate && !finalDate) ? whereInitDateOnly : ''}
+        LIMIT $1 OFFSET $2;
+      `;
+      query.values = [quantity, quantity && page ? quantity * page : undefined, initDate ? initDate : finalDate, finalDate];
+    } else {
+      query.text = `
+        SELECT
+          vehicle_model as vehicleModel,
+          client_name as clientName,
+          value,
+          paid,
+          wash_date as washDate,
+          name,
+          payment_methods.description as paymentDescription,
+          payment_type_id as paymentTypeId
+        FROM ${this.tableName}
+        LEFT JOIN payment_methods ON ${this.tableName}.payment_type_id = payment_methods.id;
+      `;
+    }
+    const washes = (await this.client.query(query)).rows;
+    return washes.map((wash: any) => (
+      new Wash(
+        wash?.clientname,
+        wash?.washdate,
+        wash?.id,
+        wash?.vehiclemodel,
+        parseFloat(wash?.value),
+        wash?.description,
+        wash?.paid,
+        wash?.paymenttypeid,
+        new PaymentMethod(wash?.name, wash?.paymentdescription, wash?.paymenttypeid),
+      )
+    ));
   }
 }
