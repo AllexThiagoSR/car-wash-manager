@@ -12,15 +12,15 @@ export default class WashRepository extends IWashRespository {
       text: `
       SELECT
         ${this.tableName}.id,
-        vehicle_model as vehicleModel,
-        client_name as clientName,
+        vehicle_model as 'vehicleModel',
+        client_name as 'clientName',
         value,
         ${this.tableName}.description,
         paid,
-        wash_date as washDate,
+        wash_date as 'washDate',
         name,
-        payment_methods.description as paymentDescription,
-        payment_type_id as paymentTypeId
+        payment_methods.description as 'paymentDescription',
+        payment_type_id as 'paymentTypeId'
       FROM ${this.tableName}
       LEFT JOIN payment_methods ON ${this.tableName}.payment_type_id = payment_methods.id
       WHERE ${this.tableName}.id = $1;
@@ -28,17 +28,7 @@ export default class WashRepository extends IWashRespository {
       values: [id]
     };
     const washFind = (await this.client.query(query)).rows[0];
-    return new Wash(
-      washFind?.clientname,
-      washFind?.washdate,
-      washFind?.id,
-      washFind?.vehiclemodel,
-      parseFloat(washFind?.value),
-      washFind?.description,
-      washFind?.paid,
-      washFind?.paymenttypeid,
-      new PaymentMethod(washFind?.name, washFind?.paymentdescription, washFind?.paymenttypeid),
-    );
+    return washFind
   }
 
   override async findAll(quantity?: number, page?: number): Promise<Wash[]> {
@@ -56,10 +46,10 @@ export default class WashRepository extends IWashRespository {
     };
 
     const washes = (await this.client.query(query)).rows;
-    return washes.map((wash: any) => new Wash(wash?.clientname, wash?.washdate, wash?.id, undefined, wash?.value));
+    return washes;
   }
 
-  async getInsertedWash({ vehicleModel, description, clientName, value, paymentTypeId }: Partial<Wash>): Promise<Wash> {
+  private async getInsertedWash({ vehicleModel, description, clientName, value, paymentTypeId }: Partial<Wash>): Promise<Wash> {
     const query = {
       text: `
       SELECT client_name AS clientname, wash_date AS date, id FROM ${this.tableName}
@@ -69,11 +59,7 @@ export default class WashRepository extends IWashRespository {
     };
     const washes = (await this.client.query(query)).rows;
     const createdWash = washes[washes.length - 1];
-    return new Wash(
-      createdWash.clientname,
-      createdWash.date,
-      createdWash.id,
-    );
+    return createdWash
   }
 
   override async create({ vehicleModel, description, clientName, value, paymentTypeId }: Partial<Wash>): Promise<Wash> {
@@ -126,18 +112,6 @@ export default class WashRepository extends IWashRespository {
       `;
     }
     const washes = (await this.client.query(query)).rows;
-    return washes.map((wash: any) => (
-      new Wash(
-        wash?.clientname,
-        wash?.washdate,
-        wash?.id,
-        wash?.vehiclemodel,
-        parseFloat(wash?.value),
-        wash?.description,
-        wash?.paid,
-        wash?.paymenttypeid,
-        new PaymentMethod(wash?.name, wash?.paymentdescription, wash?.paymenttypeid),
-      )
-    ));
+    return washes;
   }
 }
