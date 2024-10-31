@@ -2,6 +2,7 @@ import DatabaseClient from "../types/Client";
 import connection from "../database/connection";
 import Expense from "../types/Expense";
 import IExpenseRepository from "../types/IExpenseRepository";
+import ExpenseReport from "../types/ExpenseReport";
 
 export default class ExpenseRepository extends IExpenseRepository {
   constructor(name: string = 'expenses', client: DatabaseClient = connection) { super(name, client) }
@@ -68,10 +69,10 @@ export default class ExpenseRepository extends IExpenseRepository {
     return createdExpense;
   }
 
-  override async findAllWithDateFilters(filters?: { initDate?: string; finalDate?: string; }): Promise<Expense[]> {
+  override async findAllWithDateFilters(filters: { initDate?: string; finalDate?: string; }): Promise<Expense[]> {
     const query: { text: string, values: any[] } = { text: '', values: [] };
 
-    if (filters) {
+    if (Object.values(filters).some((value) => value)) {
       const { initDate, finalDate } = filters;
       const whereInitDateOnly = 'WHERE date <= $1';
       const whereFinalDateOnly = 'WHERE date >= $1';
@@ -98,6 +99,36 @@ export default class ExpenseRepository extends IExpenseRepository {
           expense_type_id as expenseTypeId
         FROM ${this.tableName}
         LEFT JOIN expense_types ON ${this.tableName}.expense_type_id = expense_types.id;
+      `;
+    }
+    const expenses = (await this.client.query(query)).rows;
+    return expenses;
+  }
+
+  override async getTotalReport(filters: { initDate?: string; finalDate?: string; }): Promise<{expensetypeid: string, value: string}[]> {
+    const query: { text: string, values: any[] } = { text: '', values: [] };
+
+    if (Object.values(filters).some((value) => value)) {
+      const { initDate, finalDate } = filters;
+      const whereInitDateOnly = 'WHERE date <= $1';
+      const whereFinalDateOnly = 'WHERE date >= $1';
+      const whereComplete = `WHERE date >= $1 AND date <= $2`;
+      query.text = `
+        SELECT
+          expense_type_id AS expensetypeid,
+          SUM(value) AS value
+        FROM ${this.tableName}
+        ${(initDate && finalDate) ? whereComplete : ''}${(!initDate && finalDate) ? whereFinalDateOnly : ''}${(initDate && !finalDate) ? whereInitDateOnly : ''}
+        GROUP BY expense_type_id;
+      `;
+      query.values = [initDate ? initDate : finalDate, finalDate];
+    } else {
+      query.text = `
+        SELECT
+          expense_type_id AS expensetypeid,
+          SUM(value) AS value
+        FROM ${this.tableName}
+        GROUP BY expense_type_id;
       `;
     }
     const expenses = (await this.client.query(query)).rows;

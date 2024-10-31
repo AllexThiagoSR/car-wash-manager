@@ -13,4 +13,12 @@ export default class ReportController {
     });
     return res.status(response.statusCode).json(response.body);
   }
+
+  public async getTotalExpenseReport(req: Request, res: Response) {
+    const response = await this.service.getTotalExpenseReport({
+      initDate: req.query.initDate as string | undefined,
+      finalDate: req.query.initDate as string | undefined,
+    });
+    return res.status(response.statusCode).json(response.body);
+  }
 }

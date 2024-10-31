@@ -11,7 +11,11 @@ export default abstract class IExpenseRepository extends BaseRepository<Expense>
     this.client = databaseClient;
   }
 
-  findAllWithDateFilters(filters: { initDate?: string, finalDate?: string ,quantity?: number, page?: number }): Promise<Expense[]> {
+  findAllWithDateFilters(filters: { initDate?: string, finalDate?: string }): Promise<Expense[]> {
+    throw new APIError('Some method was not implemented', 500);
+  }
+
+  getTotalReport(filters: { initDate?: string; finalDate?: string; }): Promise<{expensetypeid: string, value: string}[]> {
     throw new APIError('Some method was not implemented', 500);
   }
 }
