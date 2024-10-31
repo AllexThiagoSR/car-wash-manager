@@ -12,12 +12,13 @@ export default class WashService {
 
   public async findAll(quantity?: string, page?: string): Promise<ServiceResponse<Wash[]>> {
     const washes = await this.repository.findAll();
-    const parsedWashes = washes.map((wash: any) => new Wash(wash?.clientname, wash?.washdate, wash?.id, undefined, wash?.value));
+    const parsedWashes = washes.map((wash: any) => new Wash(wash?.clientname, wash?.washdate, wash?.id, undefined, parseFloat(wash?.value)));
     return new ServiceResponse(200, parsedWashes);
   }
 
   public async findOne(id: string) {
     const washFind = await this.repository.findOne(id) as any;
+    if (!washFind) throw new APIError('Wash not found', 404);
     const parsedWash = new Wash(
       washFind?.clientname,
       washFind?.washdate,

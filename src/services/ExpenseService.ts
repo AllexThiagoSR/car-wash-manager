@@ -18,6 +18,7 @@ export default class ExpenseService {
 
   public async findOne(id: string) {
     const expense = await this.repository.findOne(id) as any;
+    if (!expense) throw new APIError('Expense not found', 404);
     const parsedExpense = new Expense(
       expense.date,
       expense.id,

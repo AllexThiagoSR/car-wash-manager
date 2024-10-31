@@ -68,14 +68,14 @@ export default class ExpenseRepository extends IExpenseRepository {
     return createdExpense;
   }
 
-  override async findAllWithDateFilters(filters?: { initDate?: string; finalDate?: string; quantity?: number; page?: number; }): Promise<Expense[]> {
+  override async findAllWithDateFilters(filters?: { initDate?: string; finalDate?: string; }): Promise<Expense[]> {
     const query: { text: string, values: any[] } = { text: '', values: [] };
 
     if (filters) {
-      const { initDate, finalDate, quantity, page } = filters;
-      const whereInitDateOnly = 'WHERE date <= $3';
-      const whereFinalDateOnly = 'WHERE date >= $3';
-      const whereComplete = `WHERE date >= $3 AND date <= $4`;
+      const { initDate, finalDate } = filters;
+      const whereInitDateOnly = 'WHERE date <= $1';
+      const whereFinalDateOnly = 'WHERE date >= $1';
+      const whereComplete = `WHERE date >= $1 AND date <= $2`;
       query.text = `
         SELECT
           value,
@@ -86,9 +86,8 @@ export default class ExpenseRepository extends IExpenseRepository {
         FROM ${this.tableName}
         LEFT JOIN expense_types ON ${this.tableName}.expense_type_id = expense_types.id
         ${(initDate && finalDate) ? whereComplete : ''}${(!initDate && finalDate) ? whereFinalDateOnly : ''}${(initDate && !finalDate) ? whereInitDateOnly : ''}
-        LIMIT $1 OFFSET $2;
       `;
-      query.values = [quantity, quantity && page ? quantity * page : undefined, initDate ? initDate : finalDate, finalDate];
+      query.values = [initDate ? initDate : finalDate, finalDate];
     } else {
       query.text = `
         SELECT

@@ -11,15 +11,15 @@ export default class WashRepository extends IWashRespository {
       text: `
       SELECT
         ${this.tableName}.id,
-        vehicle_model as 'vehicleModel',
-        client_name as 'clientName',
+        vehicle_model as vehicleModel,
+        client_name as clientName,
         value,
         ${this.tableName}.description,
         paid,
-        wash_date as 'washDate',
+        wash_date as washDate,
         name,
-        payment_methods.description as 'paymentDescription',
-        payment_type_id as 'paymentTypeId'
+        payment_methods.description as paymentDescription,
+        payment_type_id as paymentTypeId
       FROM ${this.tableName}
       LEFT JOIN payment_methods ON ${this.tableName}.payment_type_id = payment_methods.id
       WHERE ${this.tableName}.id = $1;
@@ -71,14 +71,14 @@ export default class WashRepository extends IWashRespository {
     return createdWash;
   }
 
-  override async findAllWithDateFilters(filters?: { initDate?: string; finalDate?: string; quantity?: number; page?: number; }): Promise<Wash[]> {
+  override async findAllWithDateFilters(filters: { initDate?: string; finalDate?: string; }): Promise<Wash[]> {
     const query: { text: string, values: any[] } = { text: '', values: [] };
 
-    if (filters) {
-      const { initDate, finalDate, quantity, page } = filters;
-      const whereInitDateOnly = 'WHERE wash_date <= $3';
-      const whereFinalDateOnly = 'WHERE wash_date >= $3';
-      const whereComplete = `WHERE wash_date >= $3 AND wash_date <= $4`;
+    if (Object.values(filters).some((value) => value)) {
+      const { initDate, finalDate } = filters;
+      const whereInitDateOnly = 'WHERE wash_date <= $1';
+      const whereFinalDateOnly = 'WHERE wash_date >= $1';
+      const whereComplete = `WHERE wash_date >= $1 AND wash_date <= $2`;
       query.text = `
         SELECT
           vehicle_model as vehicleModel,
@@ -92,9 +92,8 @@ export default class WashRepository extends IWashRespository {
         FROM ${this.tableName}
         LEFT JOIN payment_methods ON ${this.tableName}.payment_type_id = payment_methods.id
         ${(initDate && finalDate) ? whereComplete : ''}${(!initDate && finalDate) ? whereFinalDateOnly : ''}${(initDate && !finalDate) ? whereInitDateOnly : ''}
-        LIMIT $1 OFFSET $2;
       `;
-      query.values = [quantity, quantity && page ? quantity * page : undefined, initDate ? initDate : finalDate, finalDate];
+      query.values = [initDate ? initDate : finalDate, finalDate];
     } else {
       query.text = `
         SELECT
