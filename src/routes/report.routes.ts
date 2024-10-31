@@ -6,6 +6,8 @@ import ReportController from "../controllers/ReportController";
 const reportRouter = Router();
 const controller = new ReportController();
 
-reportRouter.get('/total-income-report', adapter(AuthMiddleware.middleware), adapter((req, res) => controller.getTotalIncomeReport(req, res)));
+reportRouter.use(adapter(AuthMiddleware.middleware));
+
+reportRouter.get('/total-income-report', adapter((req, res) => controller.getTotalIncomeReport(req, res)));
 
 export default reportRouter;

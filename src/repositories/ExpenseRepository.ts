@@ -4,7 +4,7 @@ import Expense from "../types/Expense";
 import IExpenseRepository from "../types/IExpenseRepository";
 
 export default class ExpenseRepository extends IExpenseRepository {
-  constructor(name: string = 'wash_history', client: DatabaseClient = connection) { super(name, client) }
+  constructor(name: string = 'expenses', client: DatabaseClient = connection) { super(name, client) }
 
   override async findOne(id: string): Promise<Expense> {
     const query = {
@@ -15,8 +15,8 @@ export default class ExpenseRepository extends IExpenseRepository {
         ${this.tableName}.description,
         date,
         name,
-        expense_types.description as 'expensetypedescription',
-        expense_type_id as 'expenseTypeId'
+        expense_types.description as expensetypedescription,
+        expense_type_id as expenseTypeId
       FROM ${this.tableName}
       LEFT JOIN expense_types ON ${this.tableName}.expense_type_id = expense_types.id
       WHERE ${this.tableName}.id = $1;
@@ -45,26 +45,26 @@ export default class ExpenseRepository extends IExpenseRepository {
     return expenses;
   }
 
-  private async getInsertedExpense({ description, value, date, expenseTypeId }: Partial<Expense>): Promise<Expense> {
+  private async getInsertedExpense({ description, value, expenseTypeId }: Partial<Expense>): Promise<Expense> {
     const query = {
       text: `
       SELECT description, date, value, id FROM ${this.tableName}
-      WHERE description = $1 AND "value" = $2 AND "date" = $3 ${expenseTypeId ? 'AND expense_type_id = $4' : ''};
+      WHERE description = $1 AND "value" = $2 ${expenseTypeId ? 'AND expense_type_id = $3' : ''};
       `,
-      values: expenseTypeId ? [description, value, date, expenseTypeId] : [description, value, date],
+      values: expenseTypeId ? [description, value, expenseTypeId] : [description, value],
     };
     const expenses = (await this.client.query(query)).rows;
     const createdExpense = expenses[expenses.length - 1];
     return createdExpense
   }
 
-  override async create({ description, value, date, expenseTypeId }: Partial<Expense>): Promise<Expense> {
+  override async create({ description, value, expenseTypeId }: Partial<Expense>): Promise<Expense> {
     const query = {
-      text: `INSERT INTO ${this.tableName} (vehicle_model, description, client_name, "value", payment_type_id) VALUES ($1, $2, $3, $4, $5);`,
-      values: [description, value, date, expenseTypeId],
+      text: `INSERT INTO ${this.tableName} (description, "value", expense_type_id) VALUES ($1, $2, $3);`,
+      values: [description, value, expenseTypeId],
     };
     await this.client.query(query);
-    const createdExpense = await this.getInsertedExpense({ description, value, date, expenseTypeId });
+    const createdExpense = await this.getInsertedExpense({ description, value, expenseTypeId });
     return createdExpense;
   }
 
@@ -101,7 +101,7 @@ export default class ExpenseRepository extends IExpenseRepository {
         LEFT JOIN expense_types ON ${this.tableName}.expense_type_id = expense_types.id;
       `;
     }
-    const washes = (await this.client.query(query)).rows;
-    return washes;
+    const expenses = (await this.client.query(query)).rows;
+    return expenses;
   }
 }
