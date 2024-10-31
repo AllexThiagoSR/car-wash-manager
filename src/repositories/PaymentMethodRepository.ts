@@ -1,11 +1,12 @@
-import ExpenseType from "../types/ExpenseType";
 import IExpenseTypeRepository from "../types/IExpenseTypeRepository";
 import DatabaseClient from "../types/Client";
 import connection from "../database/connection";
-export default abstract class ExpenseTypeRepository  extends IExpenseTypeRepository {
-  constructor(name: string = 'expense_types', client: DatabaseClient = connection) { super(name, client) }
+import PaymentMethod from "../types/PaymentMethod";
+import IPaymentMethodRepository from "../types/IPaymentMethodRepository";
+export default abstract class PaymentMethodRepository  extends IPaymentMethodRepository {
+  constructor(name: string = 'payment_methods', client: DatabaseClient = connection) { super(name, client) }
 
-  async findAll(quantity?: number, page?: number): Promise<ExpenseType[]> {
+  async findAll(quantity?: number, page?: number): Promise<PaymentMethod[]> {
     const query = {
       text: `SELECT * FROM ${this.tableName}`,
       values: [],
@@ -14,7 +15,7 @@ export default abstract class ExpenseTypeRepository  extends IExpenseTypeReposit
     const expenseTypes = (await this.client.query(query)).rows;
 
     return expenseTypes.map((expenseType: any) => (
-      new ExpenseType(
+      new PaymentMethod(
         expenseType.name,
         expenseType.description,
         expenseType.id,

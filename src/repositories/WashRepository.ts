@@ -2,7 +2,6 @@ import DatabaseClient from "../types/Client";
 import connection from "../database/connection";
 import IWashRespository from "../types/IWashRepository";
 import Wash from "../types/Wash";
-import PaymentMethod from "../types/PaymentMethod";
 
 export default class WashRepository extends IWashRespository {
   constructor(name: string = 'wash_history', client: DatabaseClient = connection) { super(name, client) }
@@ -27,8 +26,8 @@ export default class WashRepository extends IWashRespository {
       `,
       values: [id]
     };
-    const washFind = (await this.client.query(query)).rows[0];
-    return washFind
+    const washFound = (await this.client.query(query)).rows[0];
+    return washFound
   }
 
   override async findAll(quantity?: number, page?: number): Promise<Wash[]> {
