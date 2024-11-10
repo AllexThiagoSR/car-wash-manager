@@ -5,6 +5,7 @@ import washRouter from "./wash.routes";
 import reportRouter from "./report.routes";
 import expenseRouter from "./expense.routes";
 import expenseTypeRouter from "./expenseType.routes";
+import paymentMethodRouter from "./paymentMethod.routes";
 
 const indexRouter = Router();
 const loginController = new LoginController();
@@ -18,5 +19,7 @@ indexRouter.use('/reports', reportRouter);
 indexRouter.use('/expenses', expenseRouter);
 
 indexRouter.use('/expense-types', expenseTypeRouter);
+
+indexRouter.use('/payment-methods', paymentMethodRouter)
 
 export default indexRouter;

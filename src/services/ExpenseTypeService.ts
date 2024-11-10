@@ -8,7 +8,9 @@ export default class ExpenseTypeService {
 
   constructor(repo: IExpenseTypeRepository = new ExpenseTypeRepository()) { this.repository = repo }
 
-  public async findAll(quantity?: number, page?: number): Promise<ServiceResponse<ExpenseType[]>> {
+  public async findAll(qtd?: string, p?: string): Promise<ServiceResponse<ExpenseType[]>> {
+    const quantity = Number.isNaN(Number(qtd)) ? undefined : Number(qtd);
+    const page = Number.isNaN(Number(p)) ? undefined : Number(p);
     const expenseTypes = await this.repository.findAll(quantity, page);
     return new ServiceResponse(
       200,

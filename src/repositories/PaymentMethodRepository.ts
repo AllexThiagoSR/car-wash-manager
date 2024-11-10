@@ -3,7 +3,7 @@ import connection from "../database/connection";
 import PaymentMethod from "../types/PaymentMethod";
 import IPaymentMethodRepository from "../types/IPaymentMethodRepository";
 
-export default abstract class PaymentMethodRepository  extends IPaymentMethodRepository {
+export default class PaymentMethodRepository  extends IPaymentMethodRepository {
   constructor(name: string = 'payment_methods', client: DatabaseClient = connection) { super(name, client) }
 
   async findAll(quantity?: number, page?: number): Promise<PaymentMethod[]> {
@@ -12,14 +12,8 @@ export default abstract class PaymentMethodRepository  extends IPaymentMethodRep
       values: [],
     };
     
-    const expenseTypes = (await this.client.query(query)).rows;
+    const paymentMethods = (await this.client.query(query)).rows;
 
-    return expenseTypes.map((expenseType: any) => (
-      new PaymentMethod(
-        expenseType.name,
-        expenseType.description,
-        expenseType.id,
-      )
-    ));
+    return paymentMethods
   }
 }
