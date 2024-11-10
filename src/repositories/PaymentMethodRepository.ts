@@ -1,8 +1,8 @@
-import IExpenseTypeRepository from "../types/IExpenseTypeRepository";
 import DatabaseClient from "../types/Client";
 import connection from "../database/connection";
 import PaymentMethod from "../types/PaymentMethod";
 import IPaymentMethodRepository from "../types/IPaymentMethodRepository";
+
 export default abstract class PaymentMethodRepository  extends IPaymentMethodRepository {
   constructor(name: string = 'payment_methods', client: DatabaseClient = connection) { super(name, client) }
 
