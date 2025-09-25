@@ -4,7 +4,7 @@ export default class Wash {
   public id?: string;
   public clientName: string;
   public vehicleModel?: string;
-  public washDate: Date;
+  public washDate: Date | string;
   public value?: number;
   public description?: string;
   public paid?: boolean;

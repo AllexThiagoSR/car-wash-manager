@@ -49,7 +49,7 @@ export default class App {
     });
   }
 
-  public start(port: number | string) {
-    this.app.listen(port, () => console.log('App is running on port ' + port));
+  public start(port: number | string, host?: string) {
+    this.app.listen(Number(port), host || '0.0.0.0',() => console.log('App is running on port ' + port));
   }
 }
