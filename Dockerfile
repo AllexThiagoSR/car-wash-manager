@@ -5,4 +5,4 @@ RUN npm install --loglevel verbose
 COPY ./ ./
 ENTRYPOINT [ "npm", "run" ]
 CMD ["start"]
-
+# ENTRYPOINT ["bash"]

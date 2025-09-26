@@ -3,9 +3,10 @@ services:
     build: .
     container_name: api
     command: dev
-    working_dir: /app
+    working_dir: /backend
     volumes:
-      - .:/app
+      - .:/backend
+      - /backend/node_modules
     depends_on:
       db:
         condition: service_healthy
@@ -28,7 +29,6 @@ services:
       - .env.db
     volumes:
     - ./postgres:/docker-entrypoint-initdb.d
-    - db-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
       timeout: 10s

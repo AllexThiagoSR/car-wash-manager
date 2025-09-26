@@ -1,5 +1,5 @@
 -- Active: 1742478710623@@127.0.0.1@5432@talentos_car_wash
-ALTER DATABASE car_wash SET timezone TO 'Brazil/East';
+-- ALTER DATABASE car_wash SET timezone TO 'Brazil/East';
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE users (
